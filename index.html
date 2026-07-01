@@ -390,24 +390,21 @@ const AV_PALETTE=['#1a3a2a','#c9a84c','#5a8f6a','#3a6a8a','#7a3a5a','#6a4a8a','#
 let tasks=[], projects=[], assignees=[], editId=null, deleteId=null, currentView='active', notesTaskId=null;
 
 const SAMPLE_PROJECTS=['Riverside Towers','Greenfield Villas','HQ Renovation','Land Acquisition'];
-const SAMPLE_ASSIGNEES=['David Cohen','Sarah Levy','Oren Mizrahi','Tamar Ben-David'];
-const SAMPLE=[
-  {id:'t1',name:'Submit zoning application for Riverside site',desc:'Include environmental impact appendix',project:'Riverside Towers',assignee:'David Cohen',priority:'High',status:'In Progress',due:'2026-07-08',created:1},
-  {id:'t2',name:'Finalize contractor bids for foundation work',desc:'',project:'Greenfield Villas',assignee:'Oren Mizrahi',priority:'High',status:'To Do',due:'2026-07-12',created:2},
-  {id:'t3',name:'Review lease agreements with legal',desc:'',project:'HQ Renovation',assignee:'Sarah Levy',priority:'Medium',status:'To Do',due:'2026-07-20',created:3},
-  {id:'t4',name:'Due diligence on northern plot',desc:'',project:'Land Acquisition',assignee:'David Cohen',priority:'High',status:'To Do',due:'2026-07-05',created:4},
-  {id:'t5',name:'Architect sign-off on revised floor plans',desc:'',project:'Riverside Towers',assignee:'Tamar Ben-David',priority:'Medium',status:'Done',due:'2026-06-25',created:5},
-  {id:'t6',name:'Procure permits for interior demolition',desc:'',project:'HQ Renovation',assignee:'Oren Mizrahi',priority:'Low',status:'To Do',due:'',created:6},
-];
+const SAMPLE_ASSIGNEES=[];
+const SAMPLE=[];
 
 /* ── STORAGE ── */
 function load(){
+  const cleared=localStorage.getItem('fh.cleared.v1');
+  if(!cleared){
+    localStorage.removeItem(TASK_KEY);
+    localStorage.removeItem(ASSIGN_KEY);
+    localStorage.setItem('fh.cleared.v1','1');
+  }
   try{const s=localStorage.getItem(PROJ_KEY);projects=s?JSON.parse(s):[];}catch(e){projects=[];}
   try{const s=localStorage.getItem(ASSIGN_KEY);assignees=s?JSON.parse(s):[];}catch(e){assignees=[];}
   if(!projects.length){projects=[...SAMPLE_PROJECTS];saveProjects();}
-  if(!assignees.length){assignees=[...SAMPLE_ASSIGNEES];saveAssignees();}
   try{const s=localStorage.getItem(TASK_KEY);tasks=s?JSON.parse(s):[];}catch(e){tasks=[];}
-  if(!tasks.length){tasks=SAMPLE.map(t=>({...t}));saveTasks();}
   populateAll();render();
 }
 function saveTasks(){try{localStorage.setItem(TASK_KEY,JSON.stringify(tasks));}catch(e){}}
@@ -564,7 +561,7 @@ function render(){
   document.getElementById('st-prog').textContent=active.filter(t=>t.status==='In Progress').length;
   document.getElementById('st-done').textContent=active.filter(t=>t.status==='Done').length;
 
-  const empty=`<div class="empty-state"><span class="empty-icon">🏗️</span><h3>No tasks found</h3><p>Adjust filters or add a new task.</p></div>`;
+  const empty=`<div class="empty-state"><span class="empty-icon">🏗️</span><h3>No tasks yet</h3><p>Add team members via <strong>⚙ Manage</strong>, then create your first task.</p></div>`;
 
   // Desktop table
   document.getElementById('tbody').innerHTML=!list.length?`<tr><td colspan="7">${empty}</td></tr>`:list.map(t=>`
